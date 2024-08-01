@@ -5,7 +5,7 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 import { createGalleryMarkup } from './js/render-functions.js';
-import { searchImages } from './js/pixabay-api.js';
+import { searchImages, limit } from './js/pixabay-api.js';
 
 //отримуємо доступ до форми пошуку, галереї, індикатора загрузки і кнопки підгрузки.
 const gallery = document.querySelector('.gallery');
@@ -13,7 +13,7 @@ const searchForm = document.querySelector('.js-search-form');
 const loader = document.querySelector('.loader');
 const btnLoadMore = document.querySelector('.js-load-btn');
 
-let currentPage = 1;
+let currentPage = 1; //змінна для поточної сторінки
 let query = ''; //змінна для збереження результату пошуку
 
 btnLoadMore.style.display = 'none'; //спочатку кнопки підгрузки немає
@@ -30,13 +30,11 @@ async function handleSearch(event) {
   //перевірка на пустий рядок
   if (query === '') {
     gallery.innerHTML = '';
-    iziToast.error({
-      message: 'Please enter a search query.',
-    });
+    showWarningMessage('Please enter a search query.');
     return;
   }
 
-  loader.style.display = 'block'; // Показуємо індикатор завантаження
+  loader.style.display = 'block'; // Показуємо індикатор завантаження, очищуємо розмітку, скидуємо поточну сторінку
   gallery.innerHTML = '';
   currentPage = 1;
 
@@ -60,12 +58,12 @@ async function handleSearch(event) {
     form.reset();
   }
 }
-
+// прослуховуємо подію кліку на кнопці підгрузки.При події змінюємо номер поточної сторінки, показуємо індикатор завантаження
 btnLoadMore.addEventListener('click', async () => {
-  // прослуховуємо подію кліку на кнопці підгрузки
   currentPage += 1;
   loader.style.display = 'block';
 
+  //оновлюємо запрос на сервер, доповнюємо розмітку згідно нових даних
   try {
     const data = await searchImages(query, currentPage);
     const markup = createGalleryMarkup(data);
@@ -74,16 +72,15 @@ btnLoadMore.addEventListener('click', async () => {
 
     scrollPage(); // Виклик функції прокручування
 
+    //перевірка на кінець колекції
     const totalHits = data.totalHits;
-    const totalPages = Math.ceil(totalHits / 15);
+    const totalPages = Math.ceil(totalHits / limit);
 
-    if (currentPage > totalPages) {
+    if (currentPage >= totalPages) {
       btnLoadMore.style.display = 'none';
-      iziToast.info({
-        message: "We're sorry, but you've reached the end of search results.",
-        backgroundColor: 'rgba(0, 153, 255, 1)',
-        progressBarColor: 'rgba(0, 113, 189, 1)',
-      });
+      showInfoMessage(
+        "We're sorry, but you've reached the end of search results."
+      );
     }
   } catch (error) {
     onSearchError(error);
@@ -94,12 +91,9 @@ btnLoadMore.addEventListener('click', async () => {
 
 //функція для обробки помилки
 function onSearchError(error) {
-  iziToast.error({
-    message:
-      'Sorry, there are no images matching your search query. Please try again!',
-    backgroundColor: 'rgba(239, 64, 64, 1)',
-    progressBarColor: 'rgba(181, 27, 27, 1)',
-  });
+  showErrorMessage(
+    'Sorry, there are no images matching your search query. Please try again!'
+  );
   gallery.innerHTML = ''; //очищуємо розмітку галереї
   loader.style.display = 'none'; // Приховуємо індикатор завантаження у випадку помилки
 }
@@ -122,9 +116,36 @@ let lightbox = new SimpleLightbox('.gallery .gallery-link', {
   captionDelay: 250,
 });
 
-//налаштування для iziToast повідомлень
-iziToast.settings({
-  class: 'izi-toast',
-  position: 'topRight',
-  theme: 'dark',
-});
+// функції з налаштуваннями для різних повідомлень
+function showErrorMessage(message) {
+  iziToast.error({
+    class: 'izi-toast',
+    message: message,
+    position: 'topRight',
+    theme: 'dark',
+    backgroundColor: 'rgba(239, 64, 64, 1)',
+    progressBarColor: 'rgba(181, 27, 27, 1)',
+  });
+}
+
+function showWarningMessage(message) {
+  iziToast.warning({
+    class: 'izi-toast',
+    message: message,
+    position: 'topRight',
+    theme: 'dark',
+    backgroundColor: 'rgba(255, 160, 0, 1)',
+    progressBarColor: 'rgba(187, 123, 16, 1)',
+  });
+}
+
+function showInfoMessage(message) {
+  iziToast.info({
+    class: 'izi-toast',
+    message: message,
+    position: 'bottomRight',
+    theme: 'dark',
+    backgroundColor: 'rgba(0, 153, 255, 1)',
+    progressBarColor: 'rgba(0, 113, 189, 1)',
+  });
+}
