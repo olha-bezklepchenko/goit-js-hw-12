@@ -1,9 +1,9 @@
-import{i as c,S as p}from"./assets/vendor-8c59ed88.js";(function(){const r=document.createElement("link").relList;if(r&&r.supports&&r.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))o(e);new MutationObserver(e=>{for(const t of e)if(t.type==="childList")for(const i of t.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&o(i)}).observe(document,{childList:!0,subtree:!0});function s(e){const t={};return e.integrity&&(t.integrity=e.integrity),e.referrerPolicy&&(t.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?t.credentials="include":e.crossOrigin==="anonymous"?t.credentials="omit":t.credentials="same-origin",t}function o(e){if(e.ep)return;e.ep=!0;const t=s(e);fetch(e.href,t)}})();function m({hits:a}){if(a.length===0){onSearchError();return}return a.map(({webformatURL:r,largeImageURL:s,tags:o,likes:e,views:t,comments:i,downloads:u})=>`
+import{a as p,i as d,S as L}from"./assets/vendor-c493984e.js";(function(){const a=document.createElement("link").relList;if(a&&a.supports&&a.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))o(e);new MutationObserver(e=>{for(const r of e)if(r.type==="childList")for(const i of r.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&o(i)}).observe(document,{childList:!0,subtree:!0});function s(e){const r={};return e.integrity&&(r.integrity=e.integrity),e.referrerPolicy&&(r.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?r.credentials="include":e.crossOrigin==="anonymous"?r.credentials="omit":r.credentials="same-origin",r}function o(e){if(e.ep)return;e.ep=!0;const r=s(e);fetch(e.href,r)}})();function g({hits:t}){if(t.length===0){onSearchError();return}return t.map(({webformatURL:a,largeImageURL:s,tags:o,likes:e,views:r,comments:i,downloads:b})=>`
       <li class="gallery-item">
       <a class="gallery-link" href="${s}">
      <img
       class="gallery-image"
-      src="${r}"
+      src="${a}"
       alt="${o}"
     />
   </a>
@@ -14,7 +14,7 @@ import{i as c,S as p}from"./assets/vendor-8c59ed88.js";(function(){const r=docum
         </li>
         <li class="attribute-item">
           <p class="attribute">Views</p>
-          <p class="attribute-value">${t}</p>
+          <p class="attribute-value">${r}</p>
         </li>
         <li class="attribute-item">
           <p class="attribute">Comments</p>
@@ -22,8 +22,8 @@ import{i as c,S as p}from"./assets/vendor-8c59ed88.js";(function(){const r=docum
         </li>
         <li class="attribute-item">
           <p class="attribute">Downloads</p>
-          <p class="attribute-value">${u}</p>
+          <p class="attribute-value">${b}</p>
         </li>
         </ul>
-</li>`).join("")}function y(a){const r="https://pixabay.com/api/",s="45092252-8f5dca745258e9b30d446a442",o=new URLSearchParams({key:s,q:a,image_type:"photo",orientation:"horizontal",safesearch:"true"});return fetch(`${r}?${o}`).then(e=>{if(!e.ok)throw new Error(e.status);return e.json()})}const n=document.querySelector(".gallery"),f=document.querySelector(".js-search-form"),l=document.querySelector(".loader");l.style.display="none";f.addEventListener("submit",d);function d(a){a.preventDefault();const r=a.currentTarget,s=r.elements.query.value.trim().toLowerCase();if(s===""){n.innerHTML="",c.error({message:"Please enter a search query."});return}l.style.display="block",y(s).then(o=>{const e=m(o);n.innerHTML=e,h.refresh()}).catch(g).finally(()=>{l.style.display="none",r.reset()})}function g(a){c.error({message:"Sorry, there are no images matching your search query. Please try again!"}),n.innerHTML="",l.style.display="none"}let h=new p(".gallery .gallery-link",{captionsData:"alt",captionDelay:250});c.settings({class:"izi-toast",position:"topRight",backgroundColor:"rgba(239, 64, 64, 1)",progressBarColor:"rgba(181, 27, 27, 1)",theme:"dark"});
+</li>`).join("")}p.defaults.baseURL="https://pixabay.com/api/";async function m(t,a){const s="45092252-8f5dca745258e9b30d446a442",o=new URLSearchParams({key:s,per_page:15,page:a,q:t,image_type:"photo",orientation:"horizontal",safesearch:"true"});try{return(await p.get(`?${o}`)).data}catch{throw new Error("Failed to fetch images")}}const n=document.querySelector(".gallery"),w=document.querySelector(".js-search-form"),l=document.querySelector(".loader"),u=document.querySelector(".js-load-btn");let c=1,y="";u.style.display="none";l.style.display="none";w.addEventListener("submit",S);async function S(t){t.preventDefault();const a=t.currentTarget;if(y=a.elements.query.value.trim().toLowerCase(),y===""){n.innerHTML="",d.error({message:"Please enter a search query."});return}l.style.display="block",n.innerHTML="",c=1;try{const s=await m(y,c),o=g(s);n.innerHTML=o,h.refresh(),s.hits.length>0?u.style.display="block":u.style.display="none"}catch{f()}finally{l.style.display="none",a.reset()}}u.addEventListener("click",async()=>{c+=1,l.style.display="block";try{const t=await m(y,c),a=g(t);n.insertAdjacentHTML("beforeend",a),h.refresh(),P();const s=t.totalHits,o=Math.ceil(s/15);c>o&&(u.style.display="none",d.info({message:"We're sorry, but you've reached the end of search results.",backgroundColor:"rgba(0, 153, 255, 1)",progressBarColor:"rgba(0, 113, 189, 1)"}))}catch{f()}finally{l.style.display="none"}});function f(t){d.error({message:"Sorry, there are no images matching your search query. Please try again!",backgroundColor:"rgba(239, 64, 64, 1)",progressBarColor:"rgba(181, 27, 27, 1)"}),n.innerHTML="",l.style.display="none"}function P(){const t=document.querySelector(".gallery-item").getBoundingClientRect().height;window.scrollBy({top:t*2,behavior:"smooth"})}let h=new L(".gallery .gallery-link",{captionsData:"alt",captionDelay:250});d.settings({class:"izi-toast",position:"topRight",theme:"dark"});
 //# sourceMappingURL=commonHelpers.js.map
