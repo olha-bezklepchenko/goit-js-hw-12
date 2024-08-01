@@ -44,7 +44,7 @@ async function handleSearch(event) {
     gallery.innerHTML = markup; // наповненюємо галерею
     lightbox.refresh(); // Оновлюємо SimpleLightbox після вставки нових елементів
 
-    if (data.hits.length > 0) {
+    if (data.totalHits > 15) {
       btnLoadMore.style.display = 'block'; // Показуємо кнопку "Load more"
     } else {
       btnLoadMore.style.display = 'none'; // Сховати кнопку, якщо зображення не знайдені
@@ -73,8 +73,8 @@ btnLoadMore.addEventListener('click', async () => {
     scrollPage(); // Виклик функції прокручування
 
     //перевірка на кінець колекції
-    const totalHits = data.totalHits;
-    const totalPages = Math.ceil(totalHits / limit);
+
+    const totalPages = Math.ceil(data.totalHits / limit);
 
     if (currentPage >= totalPages) {
       btnLoadMore.style.display = 'none';
@@ -95,6 +95,7 @@ function onSearchError(error) {
     'Sorry, there are no images matching your search query. Please try again!'
   );
   gallery.innerHTML = ''; //очищуємо розмітку галереї
+  btnLoadMore.style.display = 'none';
   loader.style.display = 'none'; // Приховуємо індикатор завантаження у випадку помилки
 }
 
